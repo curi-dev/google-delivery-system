@@ -1,6 +1,11 @@
 import React, { useState, useEffect, FormEvent } from 'react';
 import { Link } from 'react-router-dom';
-import { Form, Title, Error, Button, ButtonsContainer } from './styles';
+import { 
+    Form, 
+    Title, 
+    ErrorContainer, 
+    Button, 
+    ButtonsContainer } from './styles';
 
 import apiCLient from '../../services/apiClient';
 
@@ -69,10 +74,30 @@ const Registry: React.FunctionComponent = () => {
     async function handleCreateDelivery(event: FormEvent<HTMLFormElement>): Promise<void> {
         event.preventDefault();
         
-        if (!companyName || !date || !originInfo || !destinationInfo) {
+        if (!companyName || !date || !originInfo.name || !destinationInfo.name) {
             setError('* Todos os campos são obrigatórios.');
+            setTimeout(() => {
+                setError('');
+            }, 3500)
+            return;
+        }
+        
+        if (!originInfo.lat || !originInfo.lng) {
+            setError('Ponto de coleta inválido. Escolha um local da lista.')
+            setTimeout(() => {
+                setError('');
+            }, 3500)
+            return;
+        }
+        
+        if (!destinationInfo.lat || !destinationInfo.lng) {
+            setError('Ponto de entrega inválido. Escolha um local da lista.');
+            setTimeout(() => {
+                setError('');
+            }, 3500)
             return;
         };
+        
         try {
             const response = await apiCLient.post('/deliveries', {
                 companyName,
@@ -82,16 +107,10 @@ const Registry: React.FunctionComponent = () => {
             });
                     
             console.log(response.data)
-            
-            if (response.status === 400) {
-                setError(response.data.message)
-                return;
-            }
                     
             const delivery = response.data;
             console.log(delivery);
-                    
-            setError('');
+                
             setCompanyName('');
             setDate('');
             setOriginInfo({ name: '', lat: 0, lng: 0 });
@@ -101,6 +120,9 @@ const Registry: React.FunctionComponent = () => {
         } catch (err) {
             const { data } = err.response;
             setError(data.message);
+            setTimeout(() => {
+                setError('');
+            }, 3500)
         };
     };
 
@@ -111,6 +133,9 @@ const Registry: React.FunctionComponent = () => {
             <Title><i>Registre entregas com segurança.</i></Title>
             <Form onSubmit={handleCreateDelivery}>
                 <img src={deliveryTruckIcon} alt='Caminhão de entrega'/>
+                <ErrorContainer hasError={ !! error }>
+                    <span>{ error }</span>
+                </ErrorContainer>
                 <input 
                 type="text" 
                 placeholder='Nome da empresa'
@@ -136,7 +161,6 @@ const Registry: React.FunctionComponent = () => {
                 value={destinationInfo.name}
                 onChange={e => setDestinationInfo({...destinationInfo, name: e.target.value })}
                 />
-                { error && <Error>{error}</Error> }
                 <ButtonsContainer>
                     <Button btnColor={'#4169e1'}>Cadastrar entrega</Button>
                     <Link to='/deliveries'>
