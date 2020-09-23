@@ -10,7 +10,7 @@ import Header from '../../components/Header/index';
 import { Title, DeliveriesTable } from './styles'
 import { Button } from '../Registry/styles'
 
-interface Delivery {
+interface DeliveryProps {
     id: string,
     companyName: string,
     date: Date,
@@ -28,7 +28,7 @@ interface Delivery {
 
 const Deliveries: React.FunctionComponent = () => {
      
-    const [allDeliveries, setDeliveries] = useState<Delivery[]>([])
+    const [allDeliveries, setDeliveries] = useState<DeliveryProps[]>([])
 
     useEffect(() => {
         apiClient.get('/deliveries/').then(response => {

@@ -39,6 +39,7 @@ const Registry: React.FunctionComponent = () => {
 
             originAutocomplete.addListener('place_changed', () => {
                 const { name, geometry } = originAutocomplete.getPlace();
+                
                 let lat = geometry.location.lat();
                 let lng = geometry.location.lng();
                 setOriginInfo({ 
@@ -50,6 +51,7 @@ const Registry: React.FunctionComponent = () => {
 
             destinationAutocomplete.addListener('place_changed', () => {
                 const { name, geometry } = destinationAutocomplete.getPlace();
+
                 let lat = geometry.location.lat();
                 let lng = geometry.location.lng();
                 setDestinationInfo({ 
@@ -68,11 +70,23 @@ const Registry: React.FunctionComponent = () => {
 
     async function handleCreateDelivery(event: FormEvent<HTMLFormElement>): Promise<void> {
         event.preventDefault();
-        
-        if (!companyName || !date || !originInfo || !destinationInfo) {
+
+        if (!companyName || !date || !originInfo.name || !destinationInfo.name) {
             setError('* Todos os campos são obrigatórios.');
             return;
+        }
+        
+        if (!originInfo.lat || !originInfo.lng) {
+            setError('Ponto de coleta inválido. Escolha um local da lista.')
+            return;
+        }
+        
+        if (!destinationInfo.lat || !destinationInfo.lng) {
+            setError('Ponto de entrega inválido. Escolha um local da lista.');
+            return
         };
+        
+        
         try {
             const response = await apiCLient.post('/deliveries', {
                 companyName,
