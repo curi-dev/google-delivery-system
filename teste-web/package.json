@@ -15,6 +15,7 @@
     "date-fns": "^2.16.1",
     "google-maps-react": "^2.0.6",
     "moment": "^2.27.0",
+    "polished": "^3.6.7",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-google-maps": "^9.4.5",

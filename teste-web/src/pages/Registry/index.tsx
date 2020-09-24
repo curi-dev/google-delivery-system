@@ -1,12 +1,19 @@
 import React, { useState, useEffect, FormEvent } from 'react';
 import { Link } from 'react-router-dom';
-import { Form, Title, Error, Button, ButtonsContainer } from './styles';
 
 import apiCLient from '../../services/apiClient';
+import GOOGLE_API_KEY from '../../key';
 
 import Header from '../../components/Header/index';
 
 import deliveryTruckIcon from './assets/delivery-truck.png';
+
+import { 
+    Form, 
+    Title, 
+    ErrorContainer, 
+    Button, 
+    ButtonsContainer } from './styles';
 
 declare var google: any;
 
@@ -21,7 +28,7 @@ const Registry: React.FunctionComponent = () => {
     useEffect(() => {
         const googleScript = document.createElement('script');
         googleScript.defer = true;
-        googleScript.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyDERfpi8KgAkDgSI66dK4tuolryHl9zDZA&libraries=places`;
+        googleScript.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_API_KEY}&libraries=places`;
         window.document.body.append(googleScript);
 
         googleScript.addEventListener('load', () => {
@@ -71,8 +78,28 @@ const Registry: React.FunctionComponent = () => {
     async function handleCreateDelivery(event: FormEvent<HTMLFormElement>): Promise<void> {
         event.preventDefault();
 
+        
         if (!companyName || !date || !originInfo.name || !destinationInfo.name) {
             setError('* Todos os campos são obrigatórios.');
+            setTimeout(() => {
+                setError('');
+            }, 3500)
+            return;
+        }
+        
+        if (!originInfo.lat || !originInfo.lng) {
+            setError('Ponto de coleta inválido. Escolha um local da lista.')
+            setTimeout(() => {
+                setError('');
+            }, 3500)
+            return;
+        }
+        
+        if (!destinationInfo.lat || !destinationInfo.lng) {
+            setError('Ponto de entrega inválido. Escolha um local da lista.');
+            setTimeout(() => {
+                setError('');
+            }, 3500)
             return;
         }
         
@@ -96,16 +123,10 @@ const Registry: React.FunctionComponent = () => {
             });
                     
             console.log(response.data)
-            
-            if (response.status === 400) {
-                setError(response.data.message)
-                return;
-            }
                     
             const delivery = response.data;
             console.log(delivery);
-                    
-            setError('');
+                
             setCompanyName('');
             setDate('');
             setOriginInfo({ name: '', lat: 0, lng: 0 });
@@ -115,6 +136,9 @@ const Registry: React.FunctionComponent = () => {
         } catch (err) {
             const { data } = err.response;
             setError(data.message);
+            setTimeout(() => {
+                setError('');
+            }, 3500)
         };
     };
 
@@ -125,6 +149,9 @@ const Registry: React.FunctionComponent = () => {
             <Title><i>Registre entregas com segurança.</i></Title>
             <Form onSubmit={handleCreateDelivery}>
                 <img src={deliveryTruckIcon} alt='Caminhão de entrega'/>
+                <ErrorContainer hasError={ !! error }>
+                    <span>{ error }</span>
+                </ErrorContainer>
                 <input 
                 type="text" 
                 placeholder='Nome da empresa'
@@ -150,7 +177,6 @@ const Registry: React.FunctionComponent = () => {
                 value={destinationInfo.name}
                 onChange={e => setDestinationInfo({...destinationInfo, name: e.target.value })}
                 />
-                { error && <Error>{error}</Error> }
                 <ButtonsContainer>
                     <Button btnColor={'#4169e1'}>Cadastrar entrega</Button>
                     <Link to='/deliveries'>

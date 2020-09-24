@@ -72,3 +72,10 @@ export const MapCanvas = styled.div`
 
     margin-top: 65.7px;
 `;
+
+export const BoxMessage = styled.div`
+    width: 100%;
+    height: 100%;
+    font-size: 70px;
+    color: white;
+`
