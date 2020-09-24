@@ -9,7 +9,7 @@ interface DeliveryDTO {
 }
 
 export default class DeliveryRepository {
-    deliveryRepository: Delivery[] = []
+    private deliveryRepository: Delivery[] = []
 
     constructor() {
         this.deliveryRepository = [];
@@ -21,7 +21,6 @@ export default class DeliveryRepository {
 
     public find(id: string) {
         const filteredRepository = this.deliveryRepository.find(delivery => delivery.id === id);
-        console.log(filteredRepository);
         return filteredRepository;
     }
 
@@ -37,4 +36,14 @@ export default class DeliveryRepository {
 
         return newDelivery;
     };
+
+    public delete(id: string) {
+        const indexRepository = this.deliveryRepository.findIndex(delivery => delivery.id === id);
+
+        if (indexRepository != -1) {
+            this.deliveryRepository.splice(indexRepository, 1);
+        }
+
+        return this.deliveryRepository;
+    }
 };

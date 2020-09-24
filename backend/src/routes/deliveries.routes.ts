@@ -3,6 +3,7 @@ import { Router } from 'express';
 import DeliveryRepository from '../repositories/DeliveryRepository';
 import CreateDeliveryService from '../services/CreateDeliveryService';
 import CreatePlaceService from '../services/CreatePlaceService';
+import DeleteDeliveryService from '../services/DeleteDeliveryService';
 
 import { parseISO } from 'date-fns';
 
@@ -29,8 +30,6 @@ deliveries.get('/:id', (request, response) => {
 deliveries.post('/', (request, response) => {
     
     const { companyName, date, originInfo, destinationInfo } = request.body;
-    console.log(companyName)
-    console.log(date)
     
     if (!companyName || !date || !originInfo || !destinationInfo) {
         throw new Error('Todos os dados são obrigatórios.')
@@ -51,8 +50,16 @@ deliveries.post('/', (request, response) => {
         destination
     })
 
-    console.log(`Este é o objeto criado: ${delivery}`);
     return response.status(200).json(delivery);    
 });                                                     
+
+deliveries.delete('/:id', (request, response) => {
+    const { id } = request.params;
+
+    const deleteDelivery = new DeleteDeliveryService(deliveryRepository);
+    const allDeliveriesUpdated = deleteDelivery.run(id);
+
+    return response.status(200).json(allDeliveriesUpdated)
+})
 
 export default deliveries;
